@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
 from ninja.security import django_auth
 
+from cities_light.models import City
+
 from .models import Status, Task
 
 api = NinjaAPI(title="taskflow API", auth=django_auth)
@@ -58,3 +60,24 @@ def move(request, task_id: int, payload: MoveIn):
     task.status_id = payload.status_id
     task.save()  # déclenche le signal (fin réelle si statut final)
     return {"ok": True, "status_id": task.status_id, "actual_end": task.actual_end_datetime}
+
+
+class CityOut(Schema):
+    id: int
+    label: str
+
+
+@api.get("/cities", response=List[CityOut])
+def city_search(request, q: str = "", subregion: int | None = None, limit: int = 20):
+    """Autocomplétion ville côté serveur (gros volume) : filtrée et bornée.
+    S'appuie sur l'index nom de cities-light ; jamais de <select> géant côté client."""
+    qs = City.objects.select_related("subregion", "country")
+    if subregion:
+        qs = qs.filter(subregion_id=subregion)
+    if q:
+        qs = qs.filter(name__icontains=q)
+    qs = qs.order_by("name")[: min(limit, 50)]
+    return [
+        CityOut(id=c.id, label=f"{c.name} ({c.subregion.name if c.subregion_id else '-'}, {c.country.code2})")
+        for c in qs
+    ]
