@@ -3,7 +3,10 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from django_enum import EnumField
+
 from .enums import Priority, TaskKind, task_kind_choices
+from .enums_advanced import RiskLevel, Severity
 from .mixins import OrderingMixin, TrackingMixin
 
 
@@ -70,6 +73,16 @@ class Task(TrackingMixin):
     reference_url = models.URLField(blank=True)
     reporter_email = models.EmailField(blank=True)
     metadata = models.JSONField(default=dict, blank=True)
+    # --- Enums avancés (enum-properties + django-enum) ---
+    severity = EnumField(Severity, null=True, blank=True)
+    risk = EnumField(RiskLevel, null=True, blank=True)
+    # --- Champs supplémentaires (optionnels) ---
+    reminder_time = models.TimeField(null=True, blank=True)
+    reported_ip = models.GenericIPAddressField(null=True, blank=True)
+    # --- Champs spécifiques PostgreSQL (décommenter sous PostgreSQL) ---
+    # from django.contrib.postgres.fields import ArrayField, DateRangeField
+    # watchers = ArrayField(models.CharField(max_length=150), default=list, blank=True)
+    # window = DateRangeField(null=True, blank=True)
     attachment = models.FileField(upload_to="attachments/", null=True, blank=True)
     cover = models.ImageField(upload_to="covers/", null=True, blank=True)
     # Database-generated stored column (Django 5.0 feature): delay = actual end - target.
