@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from .tasks import generate_task_pdf
 from .models import (
     Assignment,
     ChecklistItem,
@@ -53,6 +54,13 @@ def duplicate_tasks(modeladmin, request, queryset):
     modeladmin.message_user(request, f"{count} tâche(s) dupliquée(s).")
 
 
+@admin.action(description="Générer la fiche PDF (tâche de fond)")
+def enqueue_pdf(modeladmin, request, queryset):
+    for task in queryset:
+        generate_task_pdf.enqueue(task.pk)
+    modeladmin.message_user(request, f"{queryset.count()} génération(s) mise(s) en file.")
+
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
@@ -61,7 +69,7 @@ class TaskAdmin(admin.ModelAdmin):
     autocomplete_fields = ("project", "status", "tags", "created_by", "original_task")
     readonly_fields = ("public_id", "delay", "created_at", "updated_at")
     inlines = [ChecklistItemInline, AssignmentInline]
-    actions = [duplicate_tasks]
+    actions = [duplicate_tasks, enqueue_pdf]
 
 
 admin.site.register(TaskMetrics)
