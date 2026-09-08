@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 
 from .enums import Priority, TaskKind, task_kind_choices
+from mptt.models import MPTTModel, TreeForeignKey
+
 from .mixins import OrderingMixin, TrackingMixin
 
 
@@ -47,7 +49,7 @@ class Tag(models.Model):
         return self.name
 
 
-class Task(TrackingMixin):
+class Task(MPTTModel, TrackingMixin):
     public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=270, blank=True)
@@ -87,6 +89,9 @@ class Task(TrackingMixin):
     original_task = models.ForeignKey(
         "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="duplicates"
     )
+    parent = TreeForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="subtasks"
+    )
     tags = models.ManyToManyField(Tag, blank=True, related_name="tasks")
     assignees = models.ManyToManyField(
         settings.AUTH_USER_MODEL, through="Assignment", related_name="assigned_tasks"
@@ -94,6 +99,9 @@ class Task(TrackingMixin):
 
     class Meta:
         ordering = ["-created_at"]
+
+    class MPTTMeta:
+        order_insertion_by = ["name"]
 
     def __str__(self):
         return self.name

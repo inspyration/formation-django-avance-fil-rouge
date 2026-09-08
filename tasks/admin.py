@@ -1,67 +1,33 @@
 from django.contrib import admin
 
-from .models import (
-    Assignment,
-    ChecklistItem,
-    Project,
-    Status,
-    Tag,
-    Task,
-    TaskMetrics,
-)
+from mptt.admin import MPTTModelAdmin
+
+from .models import Assignment, ChecklistItem, Project, Status, Tag, Task, TaskMetrics
 
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
-    list_display = ("name", "order", "is_final", "color")
-    list_editable = ("order", "is_final")
+    list_display = ("name", "order", "is_final")
     search_fields = ("name",)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
     search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "created_at")
     search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
     autocomplete_fields = ("owner",)
 
 
-class ChecklistItemInline(admin.TabularInline):
-    model = ChecklistItem
-    extra = 1
-
-
-class AssignmentInline(admin.TabularInline):
-    model = Assignment
-    extra = 1
-    autocomplete_fields = ("user",)
-
-
-@admin.action(description="Dupliquer les tâches sélectionnées")
-def duplicate_tasks(modeladmin, request, queryset):
-    count = 0
-    for task in queryset:
-        task.duplicate()
-        count += 1
-    modeladmin.message_user(request, f"{count} tâche(s) dupliquée(s).")
-
-
 @admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
-    list_filter = ("status", "priority", "project", "task_kind")
-    search_fields = ("name", "description")
-    autocomplete_fields = ("project", "status", "tags", "created_by", "original_task")
-    readonly_fields = ("public_id", "delay", "created_at", "updated_at")
-    inlines = [ChecklistItemInline, AssignmentInline]
-    actions = [duplicate_tasks]
+class TaskAdmin(MPTTModelAdmin):
+    """Admin arborescent (tâches / sous-tâches)."""
+    list_display = ("name", "project", "status", "parent")
+    list_filter = ("status", "priority", "project")
+    search_fields = ("name",)
 
 
 admin.site.register(TaskMetrics)

@@ -3,5 +3,6 @@ psycopg[binary]>=3.2
 django-ninja>=1.4
 django-htmx>=1.19
 Pillow>=11.0
+django-mptt>=0.16
 gunicorn>=23.0
 PyMySQL>=1.1
