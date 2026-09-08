@@ -14,4 +14,8 @@ urlpatterns = [
     path("htmx/assignees/", views.assignees_options, name="assignees_options"),
     path("htmx/justification/", views.justification_field, name="justification_field"),
     path("htmx/checklist-row/", views.checklist_add_row, name="checklist_add_row"),
+    path("location/", views.geo_cascade, name="geo_cascade"),
+    path("htmx/regions/", views.geo_regions, name="geo_regions"),
+    path("htmx/subregions/", views.geo_subregions, name="geo_subregions"),
+    path("htmx/cities/", views.geo_cities, name="geo_cities"),
 ]

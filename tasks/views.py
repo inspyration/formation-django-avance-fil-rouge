@@ -98,3 +98,35 @@ def my_projects(request):
     """Mes projets avec au moins une tâche ouverte — ProjectQuerySet.with_unfinished_tasks_for()."""
     projects = Project.objects.with_unfinished_tasks_for(request.user)
     return render(request, "tasks/my_projects.html", {"projects": projects})
+
+# --- Cascade géographique (htmx) ---
+from cities_light.models import City, Country, Region, SubRegion  # noqa: E402
+
+
+@login_required
+def geo_cascade(request):
+    return render(request, "tasks/geo_cascade.html", {"countries": Country.objects.all()})
+
+
+@login_required
+def geo_regions(request):
+    cid = request.GET.get("country")
+    objs = Region.objects.filter(country_id=cid) if cid else Region.objects.none()
+    return render(request, "tasks/partials/geo_options.html",
+                  {"objects": objs, "placeholder": "— région / état —"})
+
+
+@login_required
+def geo_subregions(request):
+    rid = request.GET.get("region")
+    objs = SubRegion.objects.filter(region_id=rid) if rid else SubRegion.objects.none()
+    return render(request, "tasks/partials/geo_options.html",
+                  {"objects": objs, "placeholder": "— département / comté —"})
+
+
+@login_required
+def geo_cities(request):
+    sid = request.GET.get("subregion")
+    objs = City.objects.filter(subregion_id=sid) if sid else City.objects.none()
+    return render(request, "tasks/partials/geo_options.html",
+                  {"objects": objs, "placeholder": "— ville —"})

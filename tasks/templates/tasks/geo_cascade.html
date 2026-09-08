@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h4 mb-3">Localisation — cascade (htmx)</h1>
+<p class="text-muted">Pays → région → département/comté → ville. Les listes se remplissent et s'activent au fur et à mesure.</p>
+<div class="row g-2" style="max-width:640px">
+  <div class="col"><select id="country" name="country" class="form-select"
+      hx-get="{% url 'tasks:geo_regions' %}" hx-target="#region" hx-swap="innerHTML" hx-include="this">
+    <option value="">— pays —</option>{% for c in countries %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}
+  </select></div>
+  <div class="col"><select id="region" name="region" class="form-select" disabled
+      hx-get="{% url 'tasks:geo_subregions' %}" hx-target="#subregion" hx-swap="innerHTML" hx-include="this"
+      hx-on::after-swap="this.disabled=false">
+    <option value="">— région / état —</option>
+  </select></div>
+  <div class="col"><select id="subregion" name="subregion" class="form-select" disabled
+      hx-get="{% url 'tasks:geo_cities' %}" hx-target="#city" hx-swap="innerHTML" hx-include="this"
+      hx-on::after-swap="this.disabled=false">
+    <option value="">— département / comté —</option>
+  </select></div>
+  <div class="col"><select id="city" name="city" class="form-select" disabled
+      hx-on::after-swap="this.disabled=false">
+    <option value="">— ville —</option>
+  </select></div>
+</div>
+{% endblock %}

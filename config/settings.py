@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_htmx",
+    "django_vite",
+    "cities_light",
     "crispy_forms",
     "crispy_bootstrap5",
     "tasks",
@@ -149,3 +151,11 @@ TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBacken
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Géo (cascade pays -> région -> sous-région -> ville). Restreint FR + US.
+CITIES_LIGHT_INCLUDE_COUNTRIES = ["FR", "US"]
+CITIES_LIGHT_INCLUDE_CITY_TYPES = ["PPL", "PPLA", "PPLA2", "PPLA3", "PPLC"]
+CITIES_LIGHT_TRANSLATION_LANGUAGES = ["fr", "en"]
+
+# django-vite (îlots Vue). dev_mode=True -> serveur Vite ; False -> build manifest.
+DJANGO_VITE = {"default": {"dev_mode": DEBUG, "manifest_path": BASE_DIR / "static" / "dist" / ".vite" / "manifest.json"}}

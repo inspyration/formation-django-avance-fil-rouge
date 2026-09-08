@@ -151,6 +151,11 @@ class Task(TrackingMixin):
     assignees = models.ManyToManyField(
         settings.AUTH_USER_MODEL, through="Assignment", related_name="assigned_tasks"
     )
+    # Localisation (cascade pays -> region -> sous-region -> ville).
+    country = models.ForeignKey("cities_light.Country", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    region = models.ForeignKey("cities_light.Region", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    subregion = models.ForeignKey("cities_light.SubRegion", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    city = models.ForeignKey("cities_light.City", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
 
     objects = TaskManager()
 
