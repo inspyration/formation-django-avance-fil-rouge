@@ -18,4 +18,6 @@ urlpatterns = [
     path("htmx/regions/", views.geo_regions, name="geo_regions"),
     path("htmx/subregions/", views.geo_subregions, name="geo_subregions"),
     path("htmx/cities/", views.geo_cities, name="geo_cities"),
+    path("projects/<int:project_id>/kanban/", views.kanban, name="kanban"),
+    path("location/vue/", views.geo_advanced, name="geo_advanced"),
 ]

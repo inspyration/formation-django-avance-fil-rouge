@@ -22,4 +22,17 @@
     <option value="">— ville —</option>
   </select></div>
 </div>
+
+<hr class="my-4">
+<h2 class="h6">Recherche directe d'une ville (autocomplétion serveur — pensée pour un gros volume)</h2>
+<div style="max-width:480px"><select id="city-search" placeholder="Tapez un nom de ville…"></select></div>
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.0/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.0/dist/js/tom-select.complete.min.js"></script>
+<script>
+  new TomSelect('#city-search', {
+    valueField: 'id', labelField: 'label', searchField: 'label',
+    load: (q, cb) => { if (!q) return cb();
+      fetch('/api/cities?q=' + encodeURIComponent(q)).then(r => r.json()).then(cb).catch(() => cb()); },
+  });
+</script>
 {% endblock %}

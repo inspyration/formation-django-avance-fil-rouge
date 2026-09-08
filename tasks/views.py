@@ -130,3 +130,15 @@ def geo_cities(request):
     objs = City.objects.filter(subregion_id=sid) if sid else City.objects.none()
     return render(request, "tasks/partials/geo_options.html",
                   {"objects": objs, "placeholder": "— ville —"})
+
+
+@login_required
+def kanban(request, project_id):
+    from .models import Project
+    project = get_object_or_404(Project, pk=project_id)
+    return render(request, "tasks/kanban.html", {"project": project})
+
+
+@login_required
+def geo_advanced(request):
+    return render(request, "tasks/geo_advanced.html", {})

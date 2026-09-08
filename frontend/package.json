@@ -1,0 +1,8 @@
+{
+  "name": "taskflow-front",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite", "build": "vite build" },
+  "devDependencies": { "vite": "^5.4.0", "@vitejs/plugin-vue": "^5.1.0" },
+  "dependencies": { "vue": "^3.5.0", "tom-select": "^2.4.0" }
+}
