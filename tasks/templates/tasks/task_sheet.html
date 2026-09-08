@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 0; }
+  body { font-family: "Helvetica", sans-serif; color: #222; margin: 0; }
+  .band { background: {{ task.status.color }}; color: #fff; padding: 24px 28px; }
+  .band h1 { margin: 0; font-size: 24px; }
+  .band .meta { opacity: .9; font-size: 12px; margin-top: 4px; }
+  .layout { display: flex; }
+  .side { width: 34%; background: #f2f5f8; padding: 20px 22px; min-height: 640px; font-size: 12px; }
+  .side dt { color: #667; font-weight: bold; margin-top: 10px; }
+  .side dd { margin: 2px 0 0; }
+  .main { width: 66%; padding: 24px 28px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #1a73e8; color:#fff; font-size: 11px; }
+</style></head>
+<body>
+  <div class="band">
+    <h1>{{ task.name }}</h1>
+    <div class="meta">{{ task.project.name }} — {{ task.get_task_kind_display|default:task.task_kind }} — réf. {{ task.public_id }}</div>
+  </div>
+  <div class="layout">
+    <div class="side">
+      <dl>
+        <dt>Statut</dt><dd>{{ task.status.name }}</dd>
+        <dt>Priorité</dt><dd>{{ task.get_priority_display }}</dd>
+        <dt>Points</dt><dd>{{ task.scrum_points }}</dd>
+        <dt>Échéance</dt><dd>{{ task.target_datetime|default:"—" }}</dd>
+        <dt>Fin réelle</dt><dd>{{ task.actual_end_datetime|default:"—" }}</dd>
+        <dt>Créée par</dt><dd>{{ task.created_by|default:"—" }}</dd>
+        <dt>Assignés</dt><dd>{% for u in task.assignees.all %}{{ u.username }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+        <dt>Tags</dt><dd>{% for t in task.tags.all %}<span class="badge">{{ t.name }}</span> {% empty %}—{% endfor %}</dd>
+      </dl>
+    </div>
+    <div class="main">
+      <h2>Description</h2>
+      <p>{{ task.description|linebreaksbr|default:"(aucune)" }}</p>
+      {% if task.checklist.all %}
+      <h2>Checklist</h2>
+      <ul>{% for c in task.checklist.all %}<li>{% if c.done %}☑{% else %}☐{% endif %} {{ c.label }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+</body></html>
