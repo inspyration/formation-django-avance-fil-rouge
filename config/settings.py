@@ -26,6 +26,7 @@ DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
+    "daphne",  # serveur ASGI : runserver sert les WebSockets
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_htmx",
+    "channels",
     "django_vite",
     "cities_light",
     "crispy_forms",
@@ -159,3 +161,6 @@ CITIES_LIGHT_TRANSLATION_LANGUAGES = ["fr", "en"]
 
 # django-vite (îlots Vue). dev_mode=True -> serveur Vite ; False -> build manifest.
 DJANGO_VITE = {"default": {"dev_mode": os.environ.get("VITE_DEV", "false").lower() == "true", "static_url_prefix": "dist", "manifest_path": BASE_DIR / "static" / "dist" / ".vite" / "manifest.json"}}
+
+# Temps réel (Django Channels). Démo : couche en mémoire (mono-processus).
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}

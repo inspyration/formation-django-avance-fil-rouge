@@ -2,6 +2,8 @@ from typing import List
 
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from ninja.security import django_auth
 
 from cities_light.models import City
@@ -59,6 +61,12 @@ def move(request, task_id: int, payload: MoveIn):
     task = get_object_or_404(Task, pk=task_id)
     task.status_id = payload.status_id
     task.save()  # déclenche le signal (fin réelle si statut final)
+    layer = get_channel_layer()
+    if layer is not None:
+        async_to_sync(layer.group_send)(
+            f"board_{task.project_id}",
+            {"type": "board.update", "task_id": task.id, "status_id": task.status_id},
+        )
     return {"ok": True, "status_id": task.status_id, "actual_end": task.actual_end_datetime}
 
 

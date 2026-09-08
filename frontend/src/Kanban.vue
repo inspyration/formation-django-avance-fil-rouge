@@ -29,6 +29,13 @@ async function onDrop(sid) {
   })
   dragId = null; load()
 }
-onMounted(() => { load(); timer = setInterval(load, 5000) })  // pseudo temps réel (polling)
-onUnmounted(() => clearInterval(timer))
+let ws = null
+onMounted(() => {
+  load()
+  timer = setInterval(load, 15000)  // repli
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws'
+  ws = new WebSocket(`${proto}://${location.host}/ws/board/${props.projectId}/`)
+  ws.onmessage = () => load()  // temps réel : un autre client a bougé une carte
+})
+onUnmounted(() => { clearInterval(timer); if (ws) ws.close() })
 </script>
