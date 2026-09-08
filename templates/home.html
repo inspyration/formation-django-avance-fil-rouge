@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Taskflow</title></head>
+<body>
+  <h1>Taskflow</h1>
+  <p><a href="{% url 'admin:index' %}">Administration</a></p>
+  {% if user.is_authenticated %}
+    <p>Connecté : {{ user }}</p>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+      <button type="submit">Déconnexion</button>
+    </form>
+  {% else %}
+    <p><a href="{% url 'login' %}">Connexion</a></p>
+  {% endif %}
+</body>
+</html>

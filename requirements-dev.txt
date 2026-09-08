@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest-django>=4.9
+pytest-bdd>=8.0
+pyhamcrest>=2.1
+ruff
+django-debug-toolbar>=4.4
+django-extensions>=3.2
+bpython>=0.24

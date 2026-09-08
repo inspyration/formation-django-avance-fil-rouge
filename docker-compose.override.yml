@@ -1,0 +1,7 @@
+# Override LOCAL (non distribué) : mappe PostgreSQL sur le port 5433 attendu
+# par le .env de ce poste, sans toucher au docker-compose.yml commité (que les
+# apprenants utilisent en 5432, cohérent avec .env.example).
+services:
+  postgres:
+    ports:
+      - "5433:5432"
