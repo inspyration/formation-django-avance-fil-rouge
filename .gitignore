@@ -7,3 +7,5 @@ media/*
 .env
 .venv/
 *.log
+frontend/node_modules/
+node_modules/
