@@ -1,8 +1,17 @@
 from django.contrib import admin
 
+from polymorphic.admin import (
+    PolymorphicChildModelAdmin,
+    PolymorphicChildModelFilter,
+    PolymorphicParentModelAdmin,
+)
+
 from .models import (
+    Action,
+    Anomaly,
     Assignment,
     ChecklistItem,
+    Improvement,
     Project,
     Status,
     Tag,
@@ -14,54 +23,51 @@ from .models import (
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
     list_display = ("name", "order", "is_final", "color")
-    list_editable = ("order", "is_final")
     search_fields = ("name",)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
     search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "created_at")
     search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
     autocomplete_fields = ("owner",)
 
 
-class ChecklistItemInline(admin.TabularInline):
-    model = ChecklistItem
-    extra = 1
+class TaskChildAdmin(PolymorphicChildModelAdmin):
+    """Base des admins enfants."""
+    base_model = Task
+    list_display = ("name", "project", "status", "priority")
 
 
-class AssignmentInline(admin.TabularInline):
-    model = Assignment
-    extra = 1
-    autocomplete_fields = ("user",)
+@admin.register(Anomaly)
+class AnomalyAdmin(TaskChildAdmin):
+    base_model = Anomaly
+    show_in_index = True
 
 
-@admin.action(description="Dupliquer les tâches sélectionnées")
-def duplicate_tasks(modeladmin, request, queryset):
-    count = 0
-    for task in queryset:
-        task.duplicate()
-        count += 1
-    modeladmin.message_user(request, f"{count} tâche(s) dupliquée(s).")
+@admin.register(Action)
+class ActionAdmin(TaskChildAdmin):
+    base_model = Action
+    show_in_index = True
+
+
+@admin.register(Improvement)
+class ImprovementAdmin(TaskChildAdmin):
+    base_model = Improvement
+    show_in_index = True
 
 
 @admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
-    list_filter = ("status", "priority", "project", "task_kind")
-    search_fields = ("name", "description")
-    autocomplete_fields = ("project", "status", "tags", "created_by", "original_task")
-    readonly_fields = ("public_id", "delay", "created_at", "updated_at")
-    inlines = [ChecklistItemInline, AssignmentInline]
-    actions = [duplicate_tasks]
+class TaskParentAdmin(PolymorphicParentModelAdmin):
+    base_model = Task
+    child_models = (Task, Anomaly, Action, Improvement)
+    list_filter = (PolymorphicChildModelFilter, "status", "priority")
+    list_display = ("name", "project", "status", "priority")
+    search_fields = ("name",)
 
 
 admin.site.register(TaskMetrics)

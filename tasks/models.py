@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 
 from .enums import Priority, TaskKind, task_kind_choices
+from polymorphic.models import PolymorphicModel
+
 from .mixins import OrderingMixin, TrackingMixin
 
 
@@ -47,7 +49,7 @@ class Tag(models.Model):
         return self.name
 
 
-class Task(TrackingMixin):
+class Task(TrackingMixin, PolymorphicModel):
     public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=270, blank=True)
@@ -163,3 +165,17 @@ class TaskMetrics(models.Model):
 
     def __str__(self):
         return f"Métriques de {self.task}"
+
+
+# --- Hiérarchie polymorphe (django-polymorphic) : Task est le parent. ---
+class Anomaly(Task):
+    severity = models.PositiveSmallIntegerField(default=1)
+    steps_to_reproduce = models.TextField(blank=True)
+
+
+class Action(Task):
+    reminder_date = models.DateField(null=True, blank=True)
+
+
+class Improvement(Task):
+    expected_benefit = models.TextField(blank=True)
