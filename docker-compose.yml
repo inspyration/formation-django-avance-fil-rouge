@@ -1,0 +1,58 @@
+# Pile de dev complète. Bascule de base : DB_ENGINE=postgres (défaut) ou mysql.
+#   docker compose up -d
+#   DB_ENGINE=mysql DB_HOST=mysql DB_PORT=3306 docker compose up -d web
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: taskflow
+      POSTGRES_PASSWORD: taskflow
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+
+  mysql:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: taskflow
+      MARIADB_USER: taskflow
+      MARIADB_PASSWORD: taskflow
+      MARIADB_ROOT_PASSWORD: taskflow
+    ports: ["3306:3306"]
+    volumes: ["mysqldata:/var/lib/mysql"]
+
+  adminer:
+    image: adminer:latest
+    ports: ["8080:8080"]
+    depends_on: [postgres, mysql]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["1025:1025", "8025:8025"]   # SMTP / UI
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports: ["5540:5540"]
+    volumes: ["redisinsight:/data"]
+    depends_on: [redis]
+
+  web:
+    build: .
+    environment:
+      DB_ENGINE: ${DB_ENGINE:-postgres}
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      EMAIL_HOST: mailpit
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-compose-secret
+    ports: ["8000:8000"]
+    depends_on: [postgres, mysql, mailpit, redis]
+
+volumes:
+  pgdata:
+  mysqldata:
+  redisinsight:

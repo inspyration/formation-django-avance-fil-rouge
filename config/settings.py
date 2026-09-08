@@ -68,15 +68,20 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite").lower()
-if DB_ENGINE == "postgres":
+if DB_ENGINE in ("postgres", "mysql"):
+    _default_port = "5432" if DB_ENGINE == "postgres" else "3306"
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
+            "ENGINE": (
+                "django.db.backends.postgresql"
+                if DB_ENGINE == "postgres"
+                else "django.db.backends.mysql"
+            ),
             "NAME": os.environ.get("DB_NAME", "taskflow"),
             "USER": os.environ.get("DB_USER", "taskflow"),
             "PASSWORD": os.environ.get("DB_PASSWORD", "taskflow"),
             "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
-            "PORT": os.environ.get("DB_PORT", "5432"),
+            "PORT": os.environ.get("DB_PORT", _default_port),
         }
     }
 else:
@@ -109,3 +114,30 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+
+# --- E-mail (Mailpit en dev : SMTP 1025, UI 8025) ---
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "1025"))
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "taskflow@example.com")
+
+# --- Cache Redis (optionnel : activé si REDIS_URL est défini) ---
+REDIS_URL = os.environ.get("REDIS_URL")
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
+    }
+
+# --- django-extensions + shell_plus (bpython, SQL affiché) ---
+INSTALLED_APPS += ["django_extensions"]
+SHELL_PLUS = "bpython"
+SHELL_PLUS_PRINT_SQL = True
+
+# --- django-debug-toolbar (dev uniquement) ---
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INTERNAL_IPS = ["127.0.0.1"]
