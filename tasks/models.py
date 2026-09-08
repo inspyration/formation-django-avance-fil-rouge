@@ -98,6 +98,30 @@ class Task(TrackingMixin):
     def __str__(self):
         return self.name
 
+    def duplicate(self):
+        """Duplique la tâche en gardant un lien vers l'originale (pas de réouverture)."""
+        clone = Task.objects.create(
+            name=f"{self.name} (copie)",
+            description=self.description,
+            priority=self.priority,
+            task_kind=self.task_kind,
+            scrum_points=self.scrum_points,
+            estimated_cost=self.estimated_cost,
+            estimated_duration=self.estimated_duration,
+            target_datetime=self.target_datetime,
+            status=self.status,
+            project=self.project,
+            created_by=self.created_by,
+            original_task=self,
+            is_billable=self.is_billable,
+            reference_url=self.reference_url,
+            metadata=dict(self.metadata),
+        )
+        clone.tags.set(self.tags.all())
+        for item in self.checklist.all():
+            ChecklistItem.objects.create(task=clone, label=item.label, order=item.order)
+        return clone
+
 
 class Assignment(models.Model):
     ROLES = [
