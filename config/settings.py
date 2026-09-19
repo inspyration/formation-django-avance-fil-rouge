@@ -159,3 +159,4 @@ CITIES_LIGHT_TRANSLATION_LANGUAGES = ["fr", "en"]
 
 # django-vite (îlots Vue). dev_mode=True -> serveur Vite ; False -> build manifest.
 DJANGO_VITE = {"default": {"dev_mode": os.environ.get("VITE_DEV", "false").lower() == "true", "static_url_prefix": "dist", "manifest_path": BASE_DIR / "static" / "dist" / ".vite" / "manifest.json"}}
+

@@ -20,4 +20,19 @@ def generate_task_pdf(task_id: int) -> str:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"tache-{task_obj.public_id}.pdf"
     out_path.write_bytes(pdf)
+
+    # Envoi de la fiche par e-mail (récupérée par Mailpit en dev).
+    from django.core.mail import EmailMessage
+
+    recipient = task_obj.reporter_email or (
+        task_obj.created_by.email if task_obj.created_by_id else ""
+    )
+    if recipient:
+        message = EmailMessage(
+            subject=f"Fiche de la tâche : {task_obj.name}",
+            body="Vous trouverez la fiche PDF en pièce jointe.",
+            to=[recipient],
+        )
+        message.attach(f"tache-{task_obj.public_id}.pdf", pdf, "application/pdf")
+        message.send()
     return str(out_path)

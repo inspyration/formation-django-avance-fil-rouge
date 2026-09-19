@@ -15,11 +15,25 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-## Avec Docker (PostgreSQL)
+## Développement local (services via Docker, Django sur l'hôte)
+
+Django s'installe et se lance **en local** ; Docker ne fournit que les services :
+**PostgreSQL 18**, **Mailpit** (SMTP de dev + interface web), **Redis**
+(+ **RedisInsight**, son visualiseur web), **Adminer**.
 
 ```bash
-docker compose up -d
+docker compose up -d          # postgres / mailpit / redis / adminer / redisinsight
+cp .env.example .env          # DB_ENGINE=postgres, e-mail vers Mailpit
+python manage.py migrate && python manage.py seed_demo && python manage.py seed_geo
+python manage.py runserver
 ```
+
+- Mailpit (e-mails capturés, dont la fiche PDF envoyée en tâche de fond) : http://localhost:8025
+- Adminer (inspection de la base) : http://localhost:8080
+- RedisInsight (visualisation du cache Redis) : http://localhost:5540
+
+> Procédure d'installation détaillée et guide des interfaces (Mailpit, Adminer,
+> RedisInsight) : voir le PDF *Environnement de développement local* fourni par le formateur.
 
 ## Convention de commits et de tags
 
