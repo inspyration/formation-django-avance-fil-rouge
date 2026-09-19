@@ -107,6 +107,18 @@ class Task(TrackingMixin):
                 name="task_progress_entre_0_et_100",
             ),
         ]
+        # Index composites. L'ordre des colonnes suit l'ordre des filtres : le premier
+        # sert « project », puis « project ET status » — jamais « status » seul.
+        # Le second est PARTIEL (condition=) : il n'indexe que les tâches en cours,
+        # donc plus petit et plus rapide (PostgreSQL, SQLite).
+        indexes = [
+            models.Index(fields=["project", "status"], name="task_projet_statut_idx"),
+            models.Index(
+                fields=["project"],
+                condition=models.Q(actual_end_datetime__isnull=True),
+                name="task_en_cours_idx",
+            ),
+        ]
 
     def __str__(self):
         return self.name
