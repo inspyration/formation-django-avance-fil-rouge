@@ -97,6 +97,16 @@ class Task(TrackingMixin):
 
     class Meta:
         ordering = ["-created_at"]
+        # Nouveauté Django 5.1 : l'argument s'appelle « condition » (avant : « check »,
+        # supprimé en 6.0). Une CheckConstraint est opposable EN BASE — y compris à un
+        # bulk_create ou un script de reprise, là où un validator ne protège que les
+        # formulaires.
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(progress__gte=0) & models.Q(progress__lte=100),
+                name="task_progress_entre_0_et_100",
+            ),
+        ]
 
     def __str__(self):
         return self.name
