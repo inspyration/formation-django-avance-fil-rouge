@@ -9,3 +9,4 @@ media/*
 *.log
 frontend/node_modules/
 node_modules/
+docker-compose.override.yml
