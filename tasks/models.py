@@ -66,7 +66,10 @@ class Task(TrackingMixin):
     estimated_duration = models.DurationField(null=True, blank=True)
     target_datetime = models.DateTimeField(null=True, blank=True)
     actual_end_datetime = models.DateTimeField(null=True, blank=True)
-    is_billable = models.BooleanField(default=False)
+    # Nouveauté Django 5.0 : db_default pose un DEFAULT en base. Contrairement
+    # à default (appliqué par Django à la création de l'objet), il vaut aussi
+    # pour un INSERT en SQL brut, hors ORM.
+    is_billable = models.BooleanField(default=False, db_default=False)
     reference_url = models.URLField(blank=True)
     reporter_email = models.EmailField(blank=True)
     metadata = models.JSONField(default=dict, blank=True)
