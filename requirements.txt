@@ -4,5 +4,7 @@ django-ninja>=1.4
 django-htmx>=1.19
 Pillow>=11.0
 weasyprint>=63.0
+django-crispy-forms>=2.4
+crispy-bootstrap5>=2024.10
 gunicorn>=23.0
 PyMySQL>=1.1

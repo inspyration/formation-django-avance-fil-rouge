@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Mes projets — taskflow{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Mes projets avec des tâches ouvertes</h1>
+<ul class="list-group">
+{% for project in projects %}
+  <li class="list-group-item">{{ project.name }}</li>
+{% empty %}
+  <li class="list-group-item text-muted">Aucun projet avec une tâche ouverte qui vous est affectée.</li>
+{% endfor %}
+</ul>
+{% endblock %}

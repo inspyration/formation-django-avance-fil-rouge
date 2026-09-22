@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load crispy_forms_tags %}
+{% block content %}
+<h1 class="h4 mb-3">Nouvelle tâche</h1>
+<form method="post">{% csrf_token %}
+  <div class="mb-2">{{ form.name.label_tag }}{{ form.name }}</div>
+  <div class="mb-2">{{ form.description.label_tag }}{{ form.description }}</div>
+  <div class="mb-2">{{ form.project.label_tag }}
+    <select name="project" id="id_project" class="form-select"
+            hx-get="{% url 'tasks:assignees_options' %}" hx-target="#id_assignees" hx-trigger="change"
+            hx-include="this">{% for p in form.fields.project.queryset %}<option value="{{ p.pk }}">{{ p.name }}</option>{% endfor %}</select>
+  </div>
+  <div class="mb-2"><label>Assignés (membres du projet)</label>
+    <select name="assignees" id="id_assignees" class="form-select" multiple></select></div>
+  <div class="mb-2">{{ form.priority.label_tag }}
+    <select name="priority" class="form-select" hx-get="{% url 'tasks:justification_field' %}"
+            hx-target="#justif" hx-trigger="change" hx-include="this">
+      {% for v,l in form.fields.priority.choices %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select>
+  </div>
+  <div id="justif"></div>
+  <div class="mb-2">{{ form.status.label_tag }}{{ form.status }}</div>
+  <h2 class="h6 mt-3">Checklist</h2>
+  {{ formset.management_form }}
+  <div id="checklist-rows">{% for f in formset %}{% include "tasks/partials/checklist_row.html" with form=f %}{% endfor %}</div>
+  <button type="button" class="btn btn-sm btn-outline-secondary my-2"
+          hx-get="{% url 'tasks:checklist_add_row' %}" hx-target="#checklist-rows" hx-swap="beforeend"
+          hx-vals='js:{index: document.querySelectorAll("#checklist-rows > div").length}'>+ ligne</button>
+  <div><button class="btn btn-primary">Enregistrer</button></div>
+</form>
+{% endblock %}

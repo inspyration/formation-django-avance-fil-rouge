@@ -94,7 +94,9 @@ class Command(BaseCommand):
         for task in Task.objects.all():
             total = task.checklist.count()
             done = task.checklist.filter(done=True).count()
-            TaskMetrics.objects.create(task=task, checklist_total=total, checklist_done=done)
+            TaskMetrics.objects.update_or_create(
+                task=task, defaults={"checklist_total": total, "checklist_done": done}
+            )
 
         self.stdout.write(self.style.SUCCESS("Données de démonstration chargées."))
         self.stdout.write("Comptes : alice / bob / charlie (Password123), root (rootpwd).")

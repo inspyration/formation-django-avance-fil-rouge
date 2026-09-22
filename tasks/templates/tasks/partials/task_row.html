@@ -1,0 +1,11 @@
+<tr id="task-{{ task.pk }}">
+  <td><a href="{% url 'tasks:task_pdf' task.pk %}">{{ task.name }}</a></td>
+  <td>{{ task.project.name }}</td>
+  <td>
+    <form hx-post="{% url 'tasks:task_set_status' task.pk %}" hx-target="#task-{{ task.pk }}" hx-swap="outerHTML">
+      <select name="status" class="form-select form-select-sm" onchange="this.form.requestSubmit()">
+        {% for s in statuses %}<option value="{{ s.pk }}" {% if s.pk == task.status_id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+      </select>
+    </form>
+  </td>
+</tr>

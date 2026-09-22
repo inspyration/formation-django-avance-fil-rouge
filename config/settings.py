@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_htmx",
+    "crispy_forms",
+    "crispy_bootstrap5",
     "tasks",
 ]
 
@@ -144,3 +146,6 @@ if DEBUG:
 
 # Tâches de fond (Django 6.0). Dev : exécution immédiate.
 TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBackend"}}
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

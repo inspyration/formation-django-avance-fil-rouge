@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h4 mb-3">Tâches</h1>
+<input class="form-control mb-3" type="search" name="q" placeholder="Rechercher…"
+       hx-get="{% url 'tasks:task_search' %}" hx-target="#rows" hx-trigger="keyup changed delay:300ms">
+<table class="table"><thead><tr><th>Nom</th><th>Projet</th><th>Statut</th></tr></thead>
+<tbody id="rows">{% include "tasks/partials/task_rows.html" %}</tbody></table>
+{% endblock %}
