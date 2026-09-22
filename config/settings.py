@@ -160,3 +160,19 @@ CITIES_LIGHT_TRANSLATION_LANGUAGES = ["fr", "en"]
 # django-vite (îlots Vue). dev_mode=True -> serveur Vite ; False -> build manifest.
 DJANGO_VITE = {"default": {"dev_mode": os.environ.get("VITE_DEV", "false").lower() == "true", "static_url_prefix": "dist", "manifest_path": BASE_DIR / "static" / "dist" / ".vite" / "manifest.json"}}
 
+
+# --- Cache Redis (branche demo/cache) : bases distinctes par usage ---
+CACHES = {
+    # Cache général : bas niveau (querysets) et fragments de template.
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("CACHE_URL", "redis://localhost:6379/1"),
+        "KEY_PREFIX": "taskflow",
+    },
+    # Cache dédié aux pages entières (@cache_page).
+    "pages": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("CACHE_PAGES_URL", "redis://localhost:6379/2"),
+        "KEY_PREFIX": "taskflow_pages",
+    },
+}

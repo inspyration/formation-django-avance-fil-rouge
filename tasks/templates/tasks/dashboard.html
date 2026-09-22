@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load cache %}
+{% block title %}Tableau de bord — taskflow{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Tableau de bord</h1>
+<ul>
+  <li>Tâches : {{ stats.tasks }}</li>
+  <li>Projets : {{ stats.projects }}</li>
+</ul>
+{# Fragment de template mis en cache 5 min (cache "default", Redis DB 1) #}
+{% cache 300 dashboard_by_status %}
+<h2 class="h6">Par statut</h2>
+<table class="table"><thead><tr><th>Statut</th><th>Tâches</th></tr></thead><tbody>
+{% for row in stats.by_status %}<tr><td>{{ row.name }}</td><td>{{ row.n }}</td></tr>{% endfor %}
+</tbody></table>
+{% endcache %}
+{% endblock %}

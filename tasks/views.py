@@ -142,3 +142,36 @@ def kanban(request, project_id):
 @login_required
 def geo_advanced(request):
     return render(request, "tasks/geo_advanced.html", {})
+
+
+# --- Démonstration des stratégies de cache (branche demo/cache) ---
+from django.core.cache import cache  # noqa: E402
+from django.views.decorators.cache import cache_page  # noqa: E402
+
+
+def compute_dashboard_stats():
+    """Agrégat « coûteux » : compté une fois puis mis en cache bas niveau."""
+    from django.db.models import Count
+    return {
+        "tasks": Task.objects.count(),
+        "projects": Project.objects.count(),
+        "by_status": list(
+            Status.objects.annotate(n=Count("tasks")).values("name", "n")
+        ),
+    }
+
+
+@login_required
+def dashboard(request):
+    # 1) Cache bas niveau : l'agrégat coûteux est calculé une fois pour 5 min.
+    stats = cache.get_or_set("dashboard_stats", compute_dashboard_stats, 300)
+    # 2) Le fragment de template (dans dashboard.html) est mis en cache via {% cache %}.
+    return render(request, "tasks/dashboard.html", {"stats": stats})
+
+
+# 3) Cache de page entière, sur le cache dédié "pages" (Redis DB 2), 60 s.
+@cache_page(60, cache="pages")
+@login_required
+def public_stats(request):
+    stats = cache.get_or_set("dashboard_stats", compute_dashboard_stats, 300)
+    return render(request, "tasks/dashboard.html", {"stats": stats})
