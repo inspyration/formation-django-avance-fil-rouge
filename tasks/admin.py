@@ -4,6 +4,7 @@ from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from adminsortable2.admin import SortableAdminMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
+from rangefilter.filters import DateTimeRangeFilterBuilder
 
 from .models import (
     Assignment,
@@ -71,6 +72,7 @@ class TaskAdmin(ImportExportModelAdmin):
     list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
     list_filter = (
         ("project", RelatedDropdownFilter),
+        ("target_datetime", DateTimeRangeFilterBuilder(title="Échéance")),
         "status", "priority", "task_kind",
     )
     search_fields = ("name", "description")
