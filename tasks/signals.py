@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from .models import ChecklistItem, Project, Tag, Task, TaskMetrics
+from .celery_tasks import send_project_created_email
 
 
 @receiver(pre_save, sender=Task)
@@ -47,3 +48,10 @@ def refresh_task_metrics(sender, instance, **kwargs):
     metrics.checklist_total = task.checklist.count()
     metrics.checklist_done = task.checklist.filter(done=True).count()
     metrics.save()
+
+
+@receiver(post_save, sender=Project)
+def project_created_notify_owner(sender, instance, created, **kwargs):
+    """À la création d'un projet, envoie un e-mail au owner via Celery (asynchrone)."""
+    if created:
+        send_project_created_email.delay(instance.pk)

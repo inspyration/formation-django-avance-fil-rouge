@@ -160,3 +160,10 @@ CITIES_LIGHT_TRANSLATION_LANGUAGES = ["fr", "en"]
 # django-vite (îlots Vue). dev_mode=True -> serveur Vite ; False -> build manifest.
 DJANGO_VITE = {"default": {"dev_mode": os.environ.get("VITE_DEV", "false").lower() == "true", "static_url_prefix": "dist", "manifest_path": BASE_DIR / "static" / "dist" / ".vite" / "manifest.json"}}
 
+
+# --- Celery (branche demo/celery) : broker et backend Redis ---
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/3")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/4")
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TIMEZONE = TIME_ZONE
