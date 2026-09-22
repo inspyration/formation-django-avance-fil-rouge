@@ -130,15 +130,18 @@ class Assignment(models.Model):
         ("contributor", "Contributeur"),
         ("reviewer", "Relecteur"),
     ]
+    # Nouveauté Django 5.2 : la clé primaire est le couple (task, user). Plus de
+    # colonne « id », et l'unicité est native — la UniqueConstraint devient inutile.
+    #
+    # POURQUOI CE N'EST PAS LE CHOIX DE main : un modèle à clé composite ne peut
+    # pas être la cible d'une ForeignKey, et l'admin ne le gère pas partout. Sur le
+    # fil rouge, Assignment reste une table d'association classique. On la montre
+    # ici, en démonstration isolée, précisément pour exposer ces limites.
+    pk = models.CompositePrimaryKey("task", "user")
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLES, default="contributor")
     assigned_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["task", "user"], name="unique_assignment")
-        ]
 
     def __str__(self):
         return f"{self.user} / {self.task} ({self.role})"
