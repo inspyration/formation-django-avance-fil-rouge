@@ -7,6 +7,56 @@ from .enums import Priority, TaskKind, task_kind_choices
 from .mixins import OrderingMixin, TrackingMixin
 
 
+# --- Managers & QuerySets (step 2.4: three approaches) ---
+
+
+class ProjectQuerySet(models.QuerySet):
+    """QuerySet exposed directly via as_manager() (approach 1)."""
+
+    def with_unfinished_tasks_for(self, user):
+        """Projects where the user is assigned to at least one open task."""
+        return self.filter(
+            tasks__assignees=user, tasks__status__is_final=False
+        ).distinct()
+
+    def get_by_natural_key(self, slug):
+        return self.get(slug=slug)
+
+
+class TaskQuerySet(models.QuerySet):
+    """Business queryset, chained composably."""
+
+    def assigned_to(self, user):
+        return self.filter(assignees=user)
+
+    def not_completed(self):
+        return self.filter(status__is_final=False)
+
+    def for_project(self, project):
+        return self.filter(project=project)
+
+    def get_by_natural_key(self, public_id):
+        return self.get(public_id=public_id)
+
+
+class TaskManager(models.Manager.from_queryset(TaskQuerySet)):
+    """Manager built from the queryset (approach 2): may add manager-only methods."""
+
+    def open_count(self):
+        return self.not_completed().count()
+
+
+class StatusManager(models.Manager):
+    """Plain custom Manager, no dedicated QuerySet class (approach 3)."""
+
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+    def finals(self):
+        return self.get_queryset().filter(is_final=True)
+
+
+
 class Project(TrackingMixin):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
@@ -21,6 +71,11 @@ class Project(TrackingMixin):
         limit_choices_to={"is_superuser": False},
     )
 
+    objects = ProjectQuerySet.as_manager()
+
+    def natural_key(self):
+        return (self.slug,)
+
     def __str__(self):
         return self.name
 
@@ -29,6 +84,11 @@ class Status(OrderingMixin):
     name = models.CharField(max_length=100)
     is_final = models.BooleanField(default=False)
     color = models.CharField(max_length=7, default="#888888")
+
+    objects = StatusManager()
+
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
         ordering = ["order"]
@@ -92,14 +152,19 @@ class Task(TrackingMixin):
         settings.AUTH_USER_MODEL, through="Assignment", related_name="assigned_tasks"
     )
 
+    objects = TaskManager()
+
     class Meta:
         ordering = ["-created_at"]
+
+    def natural_key(self):
+        return (str(self.public_id),)
 
     def __str__(self):
         return self.name
 
     def duplicate(self):
-        """Duplique la tâche en gardant un lien vers l'originale (pas de réouverture)."""
+        """Duplicate the task, keeping a link to the original (no re-opening)."""
         clone = Task.objects.create(
             name=f"{self.name} (copie)",
             description=self.description,
