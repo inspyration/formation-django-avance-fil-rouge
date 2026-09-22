@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from adminsortable2.admin import SortableAdminMixin
+from import_export.admin import ImportExportModelAdmin
+from import_export.resources import ModelResource
 
 from .models import (
     Assignment,
@@ -57,8 +59,15 @@ def duplicate_tasks(modeladmin, request, queryset):
     modeladmin.message_user(request, f"{count} tâche(s) dupliquée(s).")
 
 
+class TaskResource(ModelResource):
+    class Meta:
+        model = Task
+        fields = ("id", "name", "priority", "status__name", "project__name", "target_datetime")
+
+
 @admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
+class TaskAdmin(ImportExportModelAdmin):
+    resource_classes = [TaskResource]
     list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
     list_filter = (
         ("project", RelatedDropdownFilter),
