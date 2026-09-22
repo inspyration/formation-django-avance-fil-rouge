@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+
 from .models import (
     Assignment,
     ChecklistItem,
@@ -56,7 +58,10 @@ def duplicate_tasks(modeladmin, request, queryset):
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ("name", "project", "status", "priority", "created_by", "target_datetime")
-    list_filter = ("status", "priority", "project", "task_kind")
+    list_filter = (
+        ("project", RelatedDropdownFilter),
+        "status", "priority", "task_kind",
+    )
     search_fields = ("name", "description")
     autocomplete_fields = ("project", "status", "tags", "created_by", "original_task")
     readonly_fields = ("public_id", "delay", "created_at", "updated_at")
