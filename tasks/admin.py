@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+from adminsortable2.admin import SortableAdminMixin
 
 from .models import (
     Assignment,
@@ -14,9 +15,10 @@ from .models import (
 
 
 @admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+class StatusAdmin(SortableAdminMixin, admin.ModelAdmin):
+    """Ordre des statuts géré par glisser-déposer (adminsortable2)."""
     list_display = ("name", "order", "is_final", "color")
-    list_editable = ("order", "is_final")
+    list_editable = ("is_final",)  # 'order' est piloté par le drag-and-drop
     search_fields = ("name",)
 
 

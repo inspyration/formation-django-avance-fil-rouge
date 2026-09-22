@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_htmx",
     "django_admin_listfilter_dropdown",
+    "adminsortable2",
     "tasks",
 ]
 

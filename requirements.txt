@@ -6,3 +6,4 @@ Pillow>=11.0
 gunicorn>=23.0
 PyMySQL>=1.1
 django-admin-list-filter-dropdown>=1.0
+django-admin-sortable2>=2.3
