@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "adminsortable2",
     "import_export",
     "rangefilter",
+    "more_admin_filters",
     "tasks",
 ]
 

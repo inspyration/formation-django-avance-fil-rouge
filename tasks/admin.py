@@ -5,6 +5,7 @@ from adminsortable2.admin import SortableAdminMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 from rangefilter.filters import DateTimeRangeFilterBuilder
+from more_admin_filters import MultiSelectDropdownFilter
 
 from .models import (
     Assignment,
@@ -73,7 +74,9 @@ class TaskAdmin(ImportExportModelAdmin):
     list_filter = (
         ("project", RelatedDropdownFilter),
         ("target_datetime", DateTimeRangeFilterBuilder(title="Échéance")),
-        "status", "priority", "task_kind",
+        "status",
+        ("priority", MultiSelectDropdownFilter),
+        "task_kind",
     )
     search_fields = ("name", "description")
     autocomplete_fields = ("project", "status", "tags", "created_by", "original_task")
