@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+         color: #1a1a1a; font-size: 11px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 22px; color: #0b5394; margin: 0 0 2px; }
+  h2 { font-size: 15px; color: #0b5394; border-bottom: 2px solid #cfe2f3;
+       padding-bottom: 3px; margin: 22px 0 10px; page-break-after: avoid; }
+  h3 { font-size: 12.5px; color: #134f8c; margin: 14px 0 4px; page-break-after: avoid; }
+  .sub { color: #666; font-size: 11px; margin: 0 0 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; font-size: 10px; }
+  th, td { border: 1px solid #c9c9c9; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #eef4fb; }
+  code { background: #f2f2f2; padding: 0 3px; border-radius: 3px; font-size: 10px;
+         font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+  .tag { display: inline-block; background: #0b5394; color: #fff; border-radius: 3px;
+         padding: 0 5px; font-size: 9.5px; font-family: monospace; }
+  .diagram { text-align: center; margin: 8px 0 4px; page-break-inside: avoid; }
+  .note { background: #fff8e1; border-left: 3px solid #f0b400; padding: 6px 10px; margin: 8px 0; }
+  .branch-card { border: 1px solid #d9e2ec; border-radius: 5px; padding: 8px 12px;
+                 margin: 8px 0; page-break-inside: avoid; }
+  .branch-card h3 { margin-top: 0; }
+  .runtime { color: #8a4b00; font-size: 10px; }
+  ul { margin: 4px 0 4px 0; padding-left: 18px; }
+  li { margin: 1px 0; }
+  .foot { margin-top: 18px; color: #888; font-size: 9.5px; border-top: 1px solid #ddd; padding-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Architecture du fil rouge — <code>taskflow</code></h1>
+<p class="sub">Formation Django avancé (Dawan) · application support construite pas à pas ·
+Django 6.1 · annexe technique — carte des branches et des étapes</p>
+
+<div class="note">
+  Le dépôt est organisé en <strong>étapes numérotées</strong> (<code>etape-X.Y</code>) sur la
+  branche <code>main</code>, et en <strong>branches de démonstration</strong> <code>demo/*</code>
+  qui partent chacune d'un tag et n'ajoutent que leur fonctionnalité (sans reprendre la suite de
+  <code>main</code>). Repère rapide des phases : 1-2 = J1, 3 = J1/J2, 4 = J2, 5 = J3, 6-7 = J4.
+</div>
+
+<h2>Diagramme du dépôt</h2>
+<div class="diagram">
+<pre class="mermaid">
+gitGraph
+    commit tag: "1.1"
+    commit tag: "1.2"
+    commit tag: "2.1"
+    branch demo/nouveautes-6x
+    commit tag: "2.1.1"
+    commit tag: "2.1.2"
+    commit tag: "2.1.3"
+    commit tag: "2.1.4"
+    checkout main
+    branch demo/modelisation-avancee
+    commit tag: "6.3"
+    checkout main
+    commit tag: "2.2"
+    branch demo/admin-avance
+    commit tag: "2.2.1"
+    checkout main
+    branch demo/mptt
+    commit tag: "6.2"
+    checkout main
+    branch demo/polymorphic
+    commit tag: "6.1"
+    checkout main
+    commit tag: "2.3"
+    commit tag: "2.4"
+    branch demo/admin-addons
+    commit tag: "2.4.1"
+    commit tag: "2.4.2"
+    commit tag: "2.4.3"
+    commit tag: "2.4.4"
+    commit tag: "2.4.5"
+    checkout main
+    commit tag: "3.1"
+    commit tag: "3.2"
+    commit tag: "3.3"
+    commit tag: "4.1"
+    commit tag: "4.2"
+    commit tag: "5.1"
+    commit tag: "5.2"
+    commit tag: "5.3"
+    branch demo/realtime
+    commit tag: "6.4"
+    checkout main
+    commit tag: "7.1"
+    commit tag: "7.2"
+    commit tag: "7.3"
+    branch demo/celery
+    commit tag: "celery"
+    checkout main
+    branch demo/cache
+    commit tag: "cache"
+</pre>
+</div>
+
+<h2>Étapes de la branche <code>main</code></h2>
+<table>
+  <tr><th>Phase</th><th>Tag</th><th>Contenu</th></tr>
+  <tr><td rowspan="2"><b>1 — Mise en place</b></td><td><span class="tag">etape-1.1</span></td><td>Squelette Django 6.1, configuration, dépendances, page d'accueil publique et vues d'authentification.</td></tr>
+  <tr><td><span class="tag">etape-1.2</span></td><td>Docker et docker-compose : PostgreSQL, MySQL (au choix via <code>DB_ENGINE</code>), Mailpit, Redis, Adminer.</td></tr>
+  <tr><td rowspan="4"><b>2 — Modèles et administration</b></td><td><span class="tag">etape-2.1</span></td><td>Modèles du domaine (Project, Task, Status, Assignment…), enums, mixins, migration initiale ; <code>delay</code> en <code>GeneratedField</code>.</td></tr>
+  <tr><td><span class="tag">etape-2.2</span></td><td>Interface d'administration de base (registrations, list_display, filtres, inlines, actions) — <b>sans personnalisation métier</b>.</td></tr>
+  <tr><td><span class="tag">etape-2.3</span></td><td>Données de démonstration : commande <code>seed_demo</code> (comptes alice/bob/charlie staff + équipe, root superadmin).</td></tr>
+  <tr><td><span class="tag">etape-2.4</span></td><td>Managers et querysets métier (trois approches) + clés naturelles (<code>natural_key</code>).</td></tr>
+  <tr><td rowspan="3"><b>3 — Validation, signaux, PDF</b></td><td><span class="tag">etape-3.1</span></td><td>Signaux : slug automatique, horodatage write-once de la fin réelle, métriques.</td></tr>
+  <tr><td><span class="tag">etape-3.2</span></td><td>Export PDF de la fiche tâche (WeasyPrint).</td></tr>
+  <tr><td><span class="tag">etape-3.3</span></td><td>Génération PDF en tâche de fond avec <code>django.tasks</code> (Django 6.0).</td></tr>
+  <tr><td rowspan="2"><b>4 — API et front htmx</b></td><td><span class="tag">etape-4.1</span></td><td>API Django-Ninja : tableau Kanban et déplacement de tâches.</td></tr>
+  <tr><td><span class="tag">etape-4.2</span></td><td>Front htmx : recherche live, changement de statut inline, champs dépendants, formset.</td></tr>
+  <tr><td rowspan="3"><b>5 — Front moderne</b></td><td><span class="tag">etape-5.1</span></td><td>Cascade géographique htmx (django-cities-light).</td></tr>
+  <tr><td><span class="tag">etape-5.2</span></td><td>Autocomplétion de ville côté serveur (Ninja).</td></tr>
+  <tr><td><span class="tag">etape-5.3</span></td><td>Îlots Vue + Vite (Kanban, cascade) + Tom Select.</td></tr>
+  <tr><td rowspan="3"><b>7 — Tests et finitions</b></td><td><span class="tag">etape-7.1</span></td><td>Tests : pytest-django + pytest-bdd + pyhamcrest.</td></tr>
+  <tr><td><span class="tag">etape-7.2</span></td><td>Notes techniques et récapitulatif des branches (README).</td></tr>
+  <tr><td><span class="tag">etape-7.3</span></td><td>Ne pas versionner <code>node_modules</code> (garder <code>package-lock.json</code>).</td></tr>
+</table>
+<p class="sub">La <b>phase 6</b> (démos avancées) et les sous-étapes <code>2.x.y</code> vivent sur des branches <code>demo/*</code>.</p>
+
+<h2>Branches de démonstration</h2>
+
+<div class="branch-card">
+  <h3>demo/nouveautes-6x <span class="sub">— part de <span class="tag">etape-2.1</span></span></h3>
+  <p>Nouveautés récentes de Django appliquées au modèle <code>Task</code> / <code>Assignment</code>, une par sous-étape :</p>
+  <ul>
+    <li><span class="tag">etape-2.1.1</span> <b>db_default</b> (Django 5.0) sur <code>Task.is_billable</code>.</li>
+    <li><span class="tag">etape-2.1.2</span> <b>CheckConstraint</b> (Django 5.1) sur <code>Task.progress</code> (0–100).</li>
+    <li><span class="tag">etape-2.1.3</span> <b>Index composite + partiel</b> sur <code>Task</code>.</li>
+    <li><span class="tag">etape-2.1.4</span> <b>CompositePrimaryKey</b> (Django 5.2) sur <code>Assignment</code> — et ses limites (pas cible de FK, admin partiel), d'où le choix de <code>main</code> de garder une table d'association classique.</li>
+  </ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/modelisation-avancee <span class="sub">— part de <span class="tag">etape-2.1</span></span></h3>
+  <ul><li><span class="tag">etape-6.3</span> Enums riches et champs supplémentaires (ArrayField, DateRange). <span class="runtime">Runtime : PostgreSQL.</span></li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/admin-avance <span class="sub">— part de <span class="tag">etape-2.2</span></span></h3>
+  <ul><li><span class="tag">etape-2.2.1</span> Administration <b>avancée</b> : visibilité métier via <code>get_queryset</code> (un superadmin voit tout ; un membre du staff ne voit que <i>ses</i> projets — owner ou membre d'équipe — et <i>ses</i> tâches) et <code>get_fieldsets</code> sur-mesure (jeu complet pour le superadmin, vue allégée pour le staff, avec plusieurs champs par ligne). Test autonome fourni.</li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/mptt <span class="sub">— part de <span class="tag">etape-2.2</span></span></h3>
+  <ul><li><span class="tag">etape-6.2</span> Arbre tâches / sous-tâches : <code>Task</code> devient <code>MPTTModel</code> (champ <code>parent</code>), admin arborescent <code>MPTTModelAdmin</code>. <span class="runtime">Runtime : <code>django-mptt</code>.</span></li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/polymorphic <span class="sub">— part de <span class="tag">etape-2.2</span></span></h3>
+  <ul><li><span class="tag">etape-6.1</span> Hiérarchie polymorphe : <code>Task</code> parent, classes filles <code>Anomaly</code> / <code>Action</code> / <code>Improvement</code> ; admin parent + enfants avec filtre polymorphe. <span class="runtime">Runtime : <code>django-polymorphic</code>.</span></li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/admin-addons <span class="sub">— part de <span class="tag">etape-2.4</span></span></h3>
+  <p>Extensions tierces de l'admin, une par sous-étape (un paquet chacune) :</p>
+  <ul>
+    <li><span class="tag">etape-2.4.1</span> Filtre <b>déroulant</b> par projet (django-admin-list-filter-dropdown).</li>
+    <li><span class="tag">etape-2.4.2</span> Tri des statuts par <b>glisser-déposer</b> (django-admin-sortable2).</li>
+    <li><span class="tag">etape-2.4.3</span> <b>Import / export</b> CSV des tâches (django-import-export).</li>
+    <li><span class="tag">etape-2.4.4</span> Filtre par <b>plage de dates</b> d'échéance (django-admin-rangefilter).</li>
+    <li><span class="tag">etape-2.4.5</span> Filtre <b>multi-sélection</b> de priorité (django-more-admin-filters).</li>
+  </ul>
+  <p class="runtime">Runtime : les 5 paquets admin ci-dessus.</p>
+</div>
+
+<div class="branch-card">
+  <h3>demo/realtime <span class="sub">— part de <span class="tag">etape-5.3</span></span></h3>
+  <ul><li><span class="tag">etape-6.4</span> Kanban temps réel (Django Channels) : consumer WebSocket <code>BoardConsumer</code>, diffusion des changements au groupe d'un projet. <span class="runtime">Runtime : serveur ASGI <code>daphne</code>.</span></li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/celery <span class="sub">— part de <span class="tag">main</span></span></h3>
+  <ul><li><span class="tag">etape-celery</span> Notification e-mail <b>asynchrone</b> du <i>owner</i> à la création d'un projet : signal <code>post_save</code> sur <code>Project</code> → tâche Celery <code>send_project_created_email</code> (<code>.delay()</code>). Alternative « classique » aux tâches natives <code>django.tasks</code> de <code>main</code>. <span class="runtime">Runtime : <code>celery</code> + Redis + un worker (<code>celery -A config worker</code>).</span></li></ul>
+</div>
+
+<div class="branch-card">
+  <h3>demo/cache <span class="sub">— part de <span class="tag">main</span></span></h3>
+  <ul><li><span class="tag">etape-cache</span> Trois stratégies de cache Redis sur deux bases distinctes : cache <b>bas niveau</b> d'un agrégat coûteux (<code>cache.get_or_set</code>, DB 1), <b>fragment</b> de template (<code>{% cache %}</code>, DB 1), <b>page entière</b> (<code>@cache_page</code>, DB 2). <span class="runtime">Runtime : <code>django-redis</code> + Redis.</span></li></ul>
+</div>
+
+<p class="foot">Généré pour la formation Django avancé (Dawan) — Sébastien Chazallet, InsPyration.
+Voir <code>git tag -n</code> pour la liste des étapes, et le README du dépôt pour la carte interactive (Mermaid).</p>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "base", gitGraph: { showBranches: true, showCommitLabel: true } });
+</script>
+</body>
+</html>
